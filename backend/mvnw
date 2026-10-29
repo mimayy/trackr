@@ -1,0 +1,60 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Maven Wrapper (script-only).
+#
+# Downloads the Maven distribution named in .mvn/wrapper/maven-wrapper.properties
+# into ~/.m2/wrapper and runs it, so this repository needs no checked-in jar.
+#
+# If Maven is already installed you can simply use `mvn` instead.
+# ----------------------------------------------------------------------------
+set -e
+
+script_dir=$(cd -- "$(dirname -- "$0")" > /dev/null && pwd -P)
+properties="$script_dir/.mvn/wrapper/maven-wrapper.properties"
+
+if [ ! -f "$properties" ]; then
+  echo "Cannot find $properties" >&2
+  exit 1
+fi
+
+distribution_url=$(sed -n 's/^distributionUrl=//p' "$properties" | tr -d '\r')
+if [ -z "$distribution_url" ]; then
+  echo "distributionUrl is not set in $properties" >&2
+  exit 1
+fi
+
+archive_name=$(basename "$distribution_url")
+maven_dir_name=$(echo "$archive_name" | sed 's/-bin\.zip$//')
+
+wrapper_home="${MAVEN_USER_HOME:-$HOME/.m2}/wrapper/dists/$maven_dir_name"
+maven_home="$wrapper_home/$maven_dir_name"
+
+if [ ! -x "$maven_home/bin/mvn" ]; then
+  echo "Downloading Maven from $distribution_url ..." >&2
+  mkdir -p "$wrapper_home"
+
+  archive_path="$wrapper_home/$archive_name"
+  if command -v curl > /dev/null 2>&1; then
+    curl -fsSL -o "$archive_path" "$distribution_url"
+  elif command -v wget > /dev/null 2>&1; then
+    wget -q -O "$archive_path" "$distribution_url"
+  else
+    echo "Neither curl nor wget is available. Install Maven manually and use 'mvn'." >&2
+    exit 1
+  fi
+
+  if command -v unzip > /dev/null 2>&1; then
+    unzip -qq -o "$archive_path" -d "$wrapper_home"
+  else
+    echo "'unzip' is not available. Install Maven manually and use 'mvn'." >&2
+    exit 1
+  fi
+
+  rm -f "$archive_path"
+  chmod +x "$maven_home/bin/mvn"
+fi
+
+MAVEN_PROJECTBASEDIR="$script_dir"
+export MAVEN_PROJECTBASEDIR
+
+exec "$maven_home/bin/mvn" "$@"

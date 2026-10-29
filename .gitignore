@@ -1,0 +1,44 @@
+# --- Secrets ---
+.env
+.env.local
+.env.*.local
+*.pem
+
+# --- Java / Maven ---
+target/
+!.mvn/wrapper/maven-wrapper.properties
+.mvn/wrapper/maven-wrapper.jar
+*.class
+*.log
+hs_err_pid*
+
+# --- Node ---
+node_modules/
+dist/
+dist-ssr/
+.vite/
+coverage/
+playwright-report/
+test-results/
+.playwright/
+
+# --- Local runtime data ---
+data/
+backend/data/
+pgdata/
+
+# --- Editors / OS ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.iml
+.DS_Store
+Thumbs.db
+
+# --- Written by run-local.ps1 ---
+.run-local.json
+frontend/vite.log
+frontend/vite.log.err
+frontend/tunnel.log
+frontend/tunnel.log.err
+backend/target/api.log

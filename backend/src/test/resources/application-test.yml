@@ -1,0 +1,40 @@
+# Test configuration.
+#
+# Tests run against in-memory H2 in PostgreSQL compatibility mode with the
+# schema generated from the entity mappings. Flyway is disabled here on purpose:
+# the migrations are PostgreSQL-specific (partial unique indexes, for example)
+# and are exercised for real when the application starts against Postgres.
+spring:
+  datasource:
+    url: jdbc:h2:mem:trackr;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    root: WARN
+    com.uniace.trackr: INFO
+
+trackr:
+  timezone: Asia/Manila
+  app-base-url: http://localhost:5173
+  frontend-urls: http://localhost:5173
+  security:
+    jwt-secret: test-only-secret-value-that-is-long-enough-for-hmac-sha256
+    bootstrap-admin-email: admin@test.example
+    bootstrap-admin-password: TestAdmin123!
+    auth-rate-limit-per-minute: 1000
+  webauthn:
+    rp-id: localhost
+    origins: http://localhost:5173
+  demo:
+    seed: false
+  storage:
+    provider: local
+    local-path: ./target/test-photos

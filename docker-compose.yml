@@ -1,0 +1,99 @@
+# =============================================================================
+# Trackr@Uni-Ace - local development stack
+#
+#   cp .env.example .env
+#   docker compose up --build
+#
+# Then open http://localhost:5173
+#
+# Starts PostgreSQL, the Spring Boot API and the React front end. Flyway creates
+# the schema and seeds the offices, warehouses, schedules and holidays; the
+# application seeds demo employees and work events on first start.
+# =============================================================================
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: trackr-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: trackr
+      POSTGRES_USER: ${DATABASE_USERNAME:-trackr}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-trackr}
+    ports:
+      # Exposed so you can inspect the database with psql or a GUI client.
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME:-trackr} -d trackr"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ./backend
+    container_name: trackr-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # The hostname here is the compose service, not localhost.
+      DATABASE_URL: jdbc:postgresql://db:5432/trackr
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-trackr}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-trackr}
+
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-please-change-me-32chars}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@uni-ace.example}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-ChangeMe123!}
+
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:5173}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      BACKEND_URL: ${BACKEND_URL:-http://localhost:8080}
+
+      # WebAuthn is bound to a domain. For local work that domain is `localhost`,
+      # which browsers treat as a secure context even over plain http.
+      WEBAUTHN_RP_ID: ${WEBAUTHN_RP_ID:-localhost}
+      WEBAUTHN_ORIGINS: ${WEBAUTHN_ORIGINS:-http://localhost:5173}
+
+      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Manila}
+      STORAGE_PROVIDER: ${STORAGE_PROVIDER:-local}
+      STORAGE_LOCAL_PATH: /app/data/photos
+
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+      SEED_DEMO_PASSWORD: ${SEED_DEMO_PASSWORD:-Trackr123!}
+    ports:
+      - "8080:8080"
+    volumes:
+      - photos:/app/data/photos
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        # Empty: the app calls /api on its own origin and nginx proxies it to
+        # the api service, so it works from a phone or a tunnel as well.
+        VITE_API_BASE_URL: ""
+    container_name: trackr-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "5173:80"
+
+  # Optional HTTPS tunnel so a phone can use GPS and fingerprint, which
+  # browsers block on plain http. Start with `docker compose --profile tunnel
+  # up -d`; the address is in `docker compose logs tunnel`.
+  tunnel:
+    image: cloudflare/cloudflared:2024.12.2
+    container_name: trackr-tunnel
+    profiles: ["tunnel"]
+    depends_on:
+      - web
+    command: tunnel --no-autoupdate --url http://web:80
+
+volumes:
+  pgdata:
+  photos:

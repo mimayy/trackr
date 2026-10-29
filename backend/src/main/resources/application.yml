@@ -1,0 +1,122 @@
+spring:
+  application:
+    name: trackr
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/trackr}
+    username: ${DATABASE_USERNAME:trackr}
+    password: ${DATABASE_PASSWORD:trackr}
+    hikari:
+      # Free-tier Postgres (Neon) caps connections aggressively; stay modest.
+      maximum-pool-size: ${DB_POOL_SIZE:5}
+      connection-timeout: 30000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        # hibernate.jdbc.time_zone is deliberately NOT set. It applies a UTC
+        # calendar to plain TIME and DATE columns too, which silently shifts a
+        # work schedule's 08:00 start by the server's offset. Instants map to
+        # TIMESTAMPTZ correctly without it.
+        format_sql: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 8MB
+      max-request-size: 10MB
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: ${PORT:8080}
+  compression:
+    enabled: true
+  error:
+    include-message: never
+    include-stacktrace: never
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.uniace.trackr: ${LOG_LEVEL:INFO}
+
+trackr:
+  timezone: ${APP_TIMEZONE:Asia/Manila}
+  app-base-url: ${APP_BASE_URL:http://localhost:5173}
+  frontend-urls: ${FRONTEND_URL:http://localhost:5173}
+  backend-url: ${BACKEND_URL:http://localhost:8080}
+
+  security:
+    jwt-secret: ${JWT_SECRET:dev-only-secret-please-override-with-32-plus-characters}
+    access-token-minutes: ${JWT_ACCESS_TOKEN_MINUTES:30}
+    refresh-token-days: ${JWT_REFRESH_TOKEN_DAYS:14}
+    bootstrap-admin-email: ${BOOTSTRAP_ADMIN_EMAIL:admin@uni-ace.example}
+    bootstrap-admin-password: ${BOOTSTRAP_ADMIN_PASSWORD:ChangeMe123!}
+    # Requests per minute per client IP against /api/auth/** and activation.
+    auth-rate-limit-per-minute: ${AUTH_RATE_LIMIT:20}
+
+  webauthn:
+    rp-id: ${WEBAUTHN_RP_ID:localhost}
+    rp-name: ${WEBAUTHN_RP_NAME:Trackr@Uni-Ace}
+    origins: ${WEBAUTHN_ORIGINS:http://localhost:5173}
+    challenge-ttl-seconds: ${WEBAUTHN_CHALLENGE_TTL:300}
+
+  activation:
+    token-hours: ${ACTIVATION_TOKEN_HOURS:48}
+
+  gps:
+    max-accuracy-meters: ${GPS_MAX_ACCURACY_M:150}
+    warn-accuracy-meters: ${GPS_WARN_ACCURACY_M:50}
+    # A recorded position further than this from every configured location is
+    # reported as "no known location" rather than snapped to the nearest one.
+    location-match-slack-meters: ${GPS_LOCATION_MATCH_SLACK_M:250}
+
+  attendance:
+    late-grace-minutes: ${ATTENDANCE_LATE_GRACE_MINUTES:0}
+    overtime-threshold-minutes: ${ATTENDANCE_OVERTIME_THRESHOLD_MINUTES:30}
+    # A workday longer than this is impossible and gets flagged.
+    max-workday-hours: ${ATTENDANCE_MAX_WORKDAY_HOURS:16}
+
+  sync:
+    # An offline event whose device clock differs from the server clock by more
+    # than this many minutes (after accounting for time spent queued) is flagged.
+    max-clock-skew-minutes: ${SYNC_MAX_CLOCK_SKEW_MINUTES:10}
+
+  storage:
+    provider: ${STORAGE_PROVIDER:local}
+    local-path: ${STORAGE_LOCAL_PATH:./data/photos}
+    url: ${STORAGE_URL:}
+    bucket: ${STORAGE_BUCKET:trackr-photos}
+    key: ${STORAGE_KEY:}
+    secret: ${STORAGE_SECRET:}
+
+  email:
+    provider: ${EMAIL_PROVIDER:none}
+    api-key: ${EMAIL_API_KEY:}
+    from: ${EMAIL_FROM:Trackr@Uni-Ace <no-reply@uni-ace.example>}
+
+  retention:
+    work-event-days: ${RETENTION_WORK_EVENT_DAYS:1095}
+    photo-days: ${RETENTION_PHOTO_DAYS:365}
+    audit-log-days: ${RETENTION_AUDIT_LOG_DAYS:1095}
+
+  demo:
+    seed: ${SEED_DEMO_DATA:true}
+    password: ${SEED_DEMO_PASSWORD:Trackr123!}

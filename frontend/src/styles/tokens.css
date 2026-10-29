@@ -1,0 +1,100 @@
+/* ============================================================================
+   Trackr@Uni-Ace design tokens
+
+   Two audiences, one system:
+     * employees on phones, many of them older and not comfortable with
+       technology - large type, large targets, strong contrast;
+     * supervisors and administrators on laptops - denser, but built from the
+       same tokens so nothing looks like a different product.
+
+   Type and spacing are deliberately generous. The base body size is 17px
+   rather than the usual 14-16px, and primary buttons are 56px tall, because
+   the people using this on a warehouse floor should not have to squint or aim.
+   ============================================================================ */
+
+:root {
+  /* ---- Brand -------------------------------------------------------------- */
+  --brand-900: #06304a;
+  --brand-800: #0a4468;
+  --brand-700: #0f5c8c;   /* primary */
+  --brand-600: #1573ad;
+  --brand-500: #2a90cf;
+  --brand-100: #dceefa;
+  --brand-050: #f0f8fd;
+
+  /* ---- Semantic status ---------------------------------------------------- */
+  --success-700: #1b6b3a;
+  --success-600: #22803f;
+  --success-100: #dcf3e4;
+
+  --warning-700: #9a5000;
+  --warning-600: #b96208;
+  --warning-100: #fdeed8;
+
+  --danger-700: #a41f1f;
+  --danger-600: #c22a2a;
+  --danger-100: #fbe0e0;
+
+  --info-700: #14548f;
+  --info-100: #ddeafa;
+
+  /* ---- Neutrals ----------------------------------------------------------- */
+  --ink-900: #14181d;
+  --ink-800: #232a32;
+  --ink-700: #3a444f;
+  --ink-600: #55606d;
+  --ink-500: #6f7a87;
+  --ink-300: #b3bcc6;
+  --ink-200: #d7dde3;
+  --ink-100: #e9edf1;
+  --ink-050: #f4f6f9;
+  --white: #ffffff;
+
+  /* ---- Surfaces ----------------------------------------------------------- */
+  --page-bg: #f4f6f9;
+  --surface: #ffffff;
+  --surface-sunken: #eef1f5;
+  --border: #d7dde3;
+  --border-strong: #b3bcc6;
+
+  /* ---- Type --------------------------------------------------------------- */
+  --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+
+  --text-xs: 0.8125rem;   /* 13px - metadata only, never an instruction */
+  --text-sm: 0.9375rem;   /* 15px */
+  --text-base: 1.0625rem; /* 17px - body */
+  --text-lg: 1.1875rem;   /* 19px */
+  --text-xl: 1.375rem;    /* 22px */
+  --text-2xl: 1.625rem;   /* 26px */
+  --text-3xl: 2rem;       /* 32px */
+  --text-4xl: 2.5rem;     /* 40px - the big status number on the phone */
+
+  /* ---- Spacing ------------------------------------------------------------ */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+
+  /* ---- Shape -------------------------------------------------------------- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Shadows stay subtle: depth should come from spacing and borders, not haze. */
+  --shadow-sm: 0 1px 2px rgba(20, 24, 29, 0.06);
+  --shadow-md: 0 2px 8px rgba(20, 24, 29, 0.08);
+  --shadow-lg: 0 8px 24px rgba(20, 24, 29, 0.12);
+
+  /* ---- Touch targets ------------------------------------------------------ */
+  --tap-min: 48px;      /* nothing interactive is ever smaller than this */
+  --tap-primary: 56px;  /* the one big button on an employee screen */
+
+  --header-h: 60px;
+  --bottom-nav-h: 68px;
+  --sidebar-w: 232px;
+}
